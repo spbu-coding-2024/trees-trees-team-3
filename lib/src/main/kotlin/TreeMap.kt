@@ -1,21 +1,13 @@
 package main.kotlin
 
-abstract class Node<K: Comparable<K>, V, N>(key: K?, value: V?, parent: N?){
-    internal val key: K?
-    internal val value: V?
-    internal var parent: N?
+abstract class Node<K: Comparable<K>, V, N>(key: K, value: V, parent: N?){
+    internal val key: K = key
+    internal val value: V = value
+    internal var parent: N? = parent
 
-    internal var leftChild: N?
+    internal var leftChild: N? = null
 
-    internal var rightChild: N?
-
-    init {
-        this.key = key
-        this.value = value
-        this.parent = parent
-        leftChild = null
-        rightChild = null
-    }
+    internal var rightChild: N? = null
 }
 
 
@@ -26,7 +18,7 @@ abstract class TreeMap<K: Comparable<K>, V, N: Node<K, V, N>>: Iterable<Pair<K, 
     public fun find(key: K): V? {
         var currentNode = this.root
         while (currentNode != null) {
-            if ((currentNode.key ?: return null) == key) {
+            if (currentNode.key == key) {
                 return currentNode.value
             }
             else if (currentNode.key < key ) {

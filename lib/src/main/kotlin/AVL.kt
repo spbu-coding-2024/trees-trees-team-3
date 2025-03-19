@@ -1,6 +1,6 @@
 package main.kotlin
 
-class AVLNode<K: Comparable<K>, V>(key: K?, value: V?, parent: AVLNode<K, V>?): Node<K, V, AVLNode<K, V>>(key, value, parent){
+class AVLNode<K: Comparable<K>, V>(key: K, value: V, parent: AVLNode<K, V>?): Node<K, V, AVLNode<K, V>>(key, value, parent){
 
 }
 

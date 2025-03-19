@@ -1,6 +1,6 @@
 package main.kotlin
 
-class RBNode<K: Comparable<K>, V>(key: K?, value: V?, parent: RBNode<K, V>?): Node<K, V, RBNode<K, V>>(key, value, parent){
+class RBNode<K: Comparable<K>, V>(key: K, value: V, parent: RBNode<K, V>?): Node<K, V, RBNode<K, V>>(key, value, parent){
 
 }
 
