@@ -33,4 +33,22 @@ abstract class TreeMap<K: Comparable<K>, V, N: Node<K, V, N>>: Iterable<Pair<K, 
 
     public abstract fun insert(key: K, value: V)
     public abstract fun remove(key: K)
+
+    override fun iterator(): Iterator<Pair<K, V>> {
+        var allNodes = ArrayList<Pair<K, V>>()
+        fun dfs(curNode: N?) {
+            if (curNode != null) {
+                if (curNode.leftChild != null) {
+                    dfs(curNode.leftChild)
+                }
+                allNodes.add(Pair(curNode.key, curNode.value))
+                if (curNode.rightChild != null) {
+                    dfs(curNode.rightChild)
+                }
+            }
+        }
+
+        dfs(this.root)
+        return allNodes.iterator()
+    }
 }
