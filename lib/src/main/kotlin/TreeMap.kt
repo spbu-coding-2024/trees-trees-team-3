@@ -24,18 +24,18 @@ abstract class TreeMap<K: Comparable<K>, V, N: Node<K, V, N>>: Iterable<Pair<K, 
             else if (currentNode.key < key ) {
                 currentNode = currentNode.rightChild
             }
-            else if (currentNode.key < key) {
+            else if (currentNode.key > key) {
                 currentNode = currentNode.leftChild
             }
         }
         return null
     }
 
-    public abstract fun insert(key: K, value: V)
-    public abstract fun remove(key: K)
+    public abstract fun insert(key: K, value: V): Boolean
+    public abstract fun remove(key: K): Boolean
 
     override fun iterator(): Iterator<Pair<K, V>> {
-        var allNodes = ArrayList<Pair<K, V>>()
+        val allNodes = ArrayList<Pair<K, V>>()
         fun dfs(curNode: N?) {
             if (curNode != null) {
                 if (curNode.leftChild != null) {
