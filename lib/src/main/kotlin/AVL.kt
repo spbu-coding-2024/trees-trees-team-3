@@ -1,88 +1,24 @@
 package main.kotlin
 import kotlin.math.*
-import java.util.*
-import java.io.*
 class AVLNode<K: Comparable<K>, V>(key: K, value: V, parent: AVLNode<K, V>?):
-    Node<K, V, AVLNode<K, V>>(key, value, parent = null){
+    Node<K, V, AVLNode<K, V>>(key, value, parent){
         private var height: Int = 1
     val diff: Int
         get() = (leftChild?.height ?: 0) - (rightChild?.height ?: 0)
-    fun updateHeight() {
+    internal fun updateHeight() {
         height = max(leftChild?.height ?: 0, rightChild?.height ?: 0) + 1
     }
 }
 
 
 class AVL<K: Comparable<K>, V>: TreeMap<K, V, AVLNode<K, V>>() {
-    protected override var size: Long = 0
-    protected override var root: AVLNode<K, V>? = null
-    private fun updater(stack: Stack<AVLNode<K, V>>) {
-        if (stack.empty()) {
-            return
-        }
-        val node = stack.pop()
-        node.updateHeight()
-        when (node.diff) {
-            0, 1, -1 -> {stack.clear(); return}
-            2, -2 -> balance(node)
-        }
-        updater(stack)
-    }
+    override var size: Long = 0
+    override var root: AVLNode<K, V>? = null
     private fun findMin(nod: AVLNode<K, V>): AVLNode<K, V> {
         if (nod.leftChild == null) {
             return nod
         }
         return(findMin(nod.leftChild!!))
-    }
-    private fun findMax(nod: AVLNode<K, V>): AVLNode<K, V> {
-        if (nod.rightChild == null) {
-            return nod
-        }
-        return (findMax(nod.rightChild!!))
-    }
-    override fun insert(key: K, value: V): Boolean {
-        if (this.root == null) {
-            this.root = AVLNode(key, value, null)
-            size++
-            return true
-        }
-        var currentNode = this.root
-        val stack = Stack<AVLNode<K, V>>()
-        stack.push(currentNode)
-        while (currentNode != null) {
-            if (currentNode.key == key) {
-                return false
-            }
-            else if (currentNode.key < key ) {
-                if (currentNode.rightChild == null) {
-                    currentNode.rightChild = AVLNode(key, value, null)
-                    stack.push(currentNode.rightChild)
-                    updater(stack)
-                    size++
-                    return true
-                }
-                else {
-                    stack.push(currentNode)
-                    currentNode = currentNode.rightChild
-                }
-            }
-            else if (currentNode.key > key) {
-                if (currentNode.leftChild == null) {
-                    currentNode.leftChild = AVLNode(key, value, null)
-                    stack.push(currentNode.leftChild)
-                    updater(stack)
-                    size++
-                    return true
-                }
-                else {
-                    stack.push(currentNode)
-                    currentNode = currentNode.leftChild
-                }
-            }
-
-        }
-
-        return false
     }
     private fun finder(key: K): AVLNode<K,V>? {
         var currentNode = this.root
@@ -99,91 +35,218 @@ class AVL<K: Comparable<K>, V>: TreeMap<K, V, AVLNode<K, V>>() {
         }
         return null
     }
-    private fun delete(root: AVLNode<K, V>?, z: K, stack: Stack<AVLNode<K, V>>): AVLNode<K, V>? {
-        if (root == null) return null
-        if (z < root.key) {
-            stack.push(root)
-            root.leftChild = delete(root.leftChild, z, stack)
+    private fun rebalance(node: AVLNode<K, V>?) {
+        var currentNode = node
+        while (currentNode != null) {
+            val parentNode = currentNode.parent
+            currentNode.updateHeight()
+            balance(currentNode)
+            currentNode = parentNode
         }
-        else if (z > root.key) {
-            stack.push(root)
-            root.rightChild = delete(root.rightChild, z, stack)
+    }
+    override fun insert(key: K, value: V) {
+        if (this.root == null) {
+            this.root = AVLNode(key = key, value = value, null)
+            size++
+            return
         }
-        else if (root.leftChild != null && root.rightChild != null) {
-            val rootMin = findMin(root.rightChild ?: return null)
-            val newNode = AVLNode(key = rootMin.key, value = rootMin.value, parent = null)
-            newNode.leftChild = root.leftChild
-            newNode.rightChild = delete(root.rightChild, rootMin.key, stack)
-            stack.push(newNode)
-            return newNode
-        }
-        else {
-            if (root.leftChild != null) {
-                val rootLeft = root.leftChild!!
-                val newNode = AVLNode(key = rootLeft.key, value = rootLeft.value, parent = null)
-                newNode.leftChild = rootLeft.leftChild
-                newNode.rightChild = rootLeft.rightChild
-                stack.push(newNode)
-                return newNode
-            }
-            else if (root.rightChild != null) {
-                val rootRight = root.rightChild!!
-                val newNode = AVLNode(key = rootRight.key, value = rootRight.value, parent = null)
-                newNode.leftChild = rootRight.leftChild
-                newNode.rightChild = rootRight.rightChild
-                stack.push(newNode)
-                return newNode
+        var currentNode = this.root
+        while (currentNode != null) {
+            require(currentNode.key != key) {"It is not possible to insert a node " +
+                    "as such a node already exists."}
+            if (currentNode.key < key) {
+                if (currentNode.rightChild == null) {
+                    val newNode = AVLNode(key, value, currentNode)
+                    currentNode.rightChild = newNode
+                    rebalance(currentNode)
+                    size++
+                    return
+                }
+                else currentNode = currentNode.rightChild
             }
             else {
-                val newNode = null
-                return newNode
+                if (currentNode.leftChild == null) {
+                    val newNode = AVLNode(key, value, currentNode)
+                    currentNode.leftChild = newNode
+                    rebalance(currentNode)
+                    size++
+                    return
+                }
+                else currentNode = currentNode.leftChild
             }
         }
-        return root
     }
-    override fun remove(key: K): Boolean {
-        val stack = Stack<AVLNode<K, V>>()
-        delete(this.root, key, stack)
-        updater(stack)
-        return true
-    }
-    private fun rotateLeft(a: AVLNode<K, V>) {
-        val b = a.rightChild ?: return
-        a.rightChild = b.leftChild
-
-        b.leftChild = a
-        a.updateHeight()
-        b.updateHeight()
-    }
-    private fun rotateRight(a: AVLNode<K, V>) {
-        val b = a.leftChild ?: return
-        a.leftChild = b.rightChild
-        b.rightChild = a
-        a.updateHeight()
-        b.updateHeight()
-    }
-    private fun bigRotateLeft(a: AVLNode<K, V>) {
-        rotateRight(a.rightChild ?: return)
-        rotateLeft(a)
-    }
-    private fun bigRotateRight(a: AVLNode<K, V>) {
-        rotateLeft(a.leftChild ?: return)
-        rotateRight(a)
-    }
-    private fun balance(a: AVLNode<K, V>) {
-        val b = a.rightChild
-        val br = a.leftChild
-        if (a.diff == -2) {
-            when (b?.diff) {
-                -1, 0 -> rotateLeft(a)
-                1 -> bigRotateRight(a)
+    override fun remove(key: K) {
+        val node = finder(key)
+        val parentNode = node?.parent
+        require(node != null) {"Deletion is not possible: there is no such node."}
+        if (node.leftChild == null && node.rightChild == null) {
+            if (node.parent != null) {
+                if (parentNode?.leftChild == node) {
+                    parentNode.leftChild = null
+                } else {
+                    parentNode?.rightChild = null
+                }
+                rebalance(parentNode!!)
+            }
+            else {
+                this.root = null
             }
         }
-        else if (a.diff == 2) {
-            when (br?.diff) {
-                1, 0 -> rotateRight(a)
-                -1 -> bigRotateLeft(a)
+        else if (node.leftChild == null || node.rightChild == null) {
+            if (node.leftChild == null) {
+                if (parentNode != null) {
+                    if (parentNode.leftChild == node) {
+                        parentNode.leftChild = node.rightChild
+                    }
+                    else {
+                        parentNode.rightChild = node.rightChild
+                    }
+                    node.rightChild?.parent = parentNode
+                    rebalance(parentNode)
+                }
+                else {
+                    node.rightChild?.parent = null
+                    this.root = node.rightChild
+                }
             }
+            else {
+                if (parentNode != null) {
+                    if (parentNode.leftChild == node) {
+                        parentNode.leftChild = node.leftChild
+                    }
+                    else {
+                        parentNode.rightChild = node.leftChild
+                    }
+                    node.leftChild?.parent = parentNode
+                    rebalance(parentNode)
+                }
+                else {
+                    node.leftChild?.parent = null
+                    this.root = node.leftChild
+                }
+            }
+        }
+        else {
+            val successor = findMin(node.rightChild!!)
+            val successorKey = successor.key
+            val successorParent = successor.parent
+            val leftNode = node.leftChild
+            val successorValue = successor.value
+            if (successor.parent?.leftChild == successor) {
+                successor.parent?.leftChild = successor.rightChild
+                successor.rightChild?.parent = successor.parent
+                val newNode = AVLNode(key = successorKey, value = successorValue, 
+                    node.parent)
+                newNode.leftChild = leftNode
+                leftNode?.parent = newNode
+                newNode.rightChild = node.rightChild
+                node.rightChild?.parent = newNode
+                if (parentNode != null) {
+                    if (parentNode.leftChild == node)
+                        parentNode.leftChild = newNode
+                    else parentNode.rightChild = newNode
+                }
+                else this.root = newNode
+                rebalance(successorParent!!)
+            }
+            else {
+                val newNode = AVLNode(key = successorKey, value = successorValue,
+                    node.parent)
+                newNode.leftChild = leftNode
+                leftNode?.parent = newNode
+                newNode.rightChild = successor.rightChild
+                newNode.rightChild?.parent = newNode
+                if (parentNode != null) {
+                    if (parentNode.leftChild == node)
+                        parentNode.leftChild = newNode
+                    else parentNode.rightChild = newNode
+                }
+                else this.root = newNode
+                rebalance(newNode)
+            }
+        }
+        size--
+    }
+    private fun rotateLeft(node: AVLNode<K, V>): AVLNode<K, V> {
+        val rightNode = node.rightChild
+        require(rightNode != null) {"Left turn is not possible: " +
+                "the right child is null"}
+        val parentNode = node.parent
+        node.rightChild = rightNode.leftChild
+        node.rightChild?.parent = node
+        rightNode.leftChild = node
+        node.parent = rightNode
+        if (parentNode == null) {
+            this.root = rightNode
+            rightNode.parent = null
+        }
+        else if (parentNode.leftChild == node) {
+            parentNode.leftChild = rightNode
+            rightNode.parent = parentNode
+        }
+        else {
+            parentNode.rightChild = rightNode
+            rightNode.parent = parentNode
+        }
+        node.updateHeight()
+        rightNode.updateHeight()
+        return rightNode
+    }
+    private fun rotateRight(node: AVLNode<K, V>): AVLNode<K, V> {
+        val leftNode = node.leftChild
+        require(leftNode != null) {"Right turn is not possible: " +
+                "the left child is null"}
+        val parentNode = node.parent
+        node.leftChild = leftNode.rightChild
+        node.leftChild?.parent = node
+        leftNode.rightChild = node
+        node.parent = leftNode
+        if (parentNode == null) {
+            this.root = leftNode
+            leftNode.parent = null
+        }
+        else if (parentNode.leftChild == node) {
+            parentNode.leftChild = leftNode
+            leftNode.parent = parentNode
+        }
+        else {
+            parentNode.rightChild = leftNode
+            leftNode.parent = parentNode
+        }
+        node.updateHeight()
+        leftNode.updateHeight()
+        return leftNode
+    }
+    private fun bigRotateLeft(node: AVLNode<K, V>): AVLNode<K, V> {
+        val rightNode = node.rightChild
+        require(rightNode != null) {"Big Right turn is not possible: " +
+                "the Right child is null"}
+        rotateRight(rightNode)
+        return rotateLeft(node)
+    }
+    private fun bigRotateRight(node: AVLNode<K, V>): AVLNode<K, V> {
+        val leftNode = node.leftChild
+        require(leftNode != null) {"Big Left turn is not possible: " +
+                "the left child is null"}
+        rotateLeft(leftNode)
+        return rotateRight(node)
+    }
+    private fun balance(node: AVLNode<K, V>): AVLNode<K, V> {
+        node.updateHeight()
+        val diff = node.diff
+        return when {
+            diff < -1 -> {
+                val rightNode = node.rightChild
+                if ((rightNode?.diff ?: 0) > 0) bigRotateLeft(node)
+                else rotateLeft(node)
+            }
+            diff > 1 -> {
+                val leftNode = node.leftChild
+                if ((leftNode?.diff ?: 0) < 0) bigRotateRight(node)
+                else rotateRight(node)
+            }
+            else -> node
         }
     }
 }
