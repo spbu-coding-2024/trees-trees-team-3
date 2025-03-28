@@ -1,7 +1,5 @@
 package main.kotlin
 
-import kotlin.coroutines.Continuation
-
 enum class Color {
     RED, BLACK
 }
@@ -20,148 +18,6 @@ class RBNode<K: Comparable<K>, V>(key: K, value: V, parent: RBNode<K, V>?, color
 class RBTree<K: Comparable<K>, V>: TreeMap<K, V, RBNode<K, V>>() {
     override protected var size: Long = 0
     override protected var root: RBNode<K, V>? = null
-
-    override fun insert(key: K, value: V) {
-        if (this.root == null) {
-            this.root = RBNode(key, value, null, Color.BLACK)
-            return
-        }
-
-        var newNodeParent = this.root
-        while (newNodeParent != null) {
-            if (newNodeParent.key == key) {
-                // поменять/оставить прежнее значение/кинуть исключение?
-            }
-            else if (newNodeParent.key > key) {
-                if (newNodeParent.leftChild == null) {
-                    newNodeParent.leftChild = RBNode(key, value, newNodeParent, Color.RED)
-                    break
-                }
-                newNodeParent = newNodeParent.leftChild
-            }
-            else if (newNodeParent.key < key) {
-                if (newNodeParent.rightChild == null) {
-                    newNodeParent.rightChild = RBNode(key, value, newNodeParent, Color.RED)
-                    break
-                }
-                newNodeParent = newNodeParent.rightChild
-            }
-        }
-
-        if (newNodeParent != null && newNodeParent.color == Color.RED) {
-            var curNode = if (newNodeParent.leftChild != null) newNodeParent.leftChild else newNodeParent.rightChild
-            var parent = newNodeParent
-            var grandParent = newNodeParent.parent
-            var uncle: RBNode<K, V>?
-            if (parent == grandParent?.leftChild) {
-                uncle = grandParent.rightChild
-            }
-            else {
-                uncle = grandParent?.leftChild
-            }
-
-            // балансировка дерева после вставки
-            TODO("посмотреть, во что уходит вершина текущая при балансировке - дед или отец, кто отец, кто дядя")
-            while (parent?.color == Color.RED) {
-                if (uncle != null && uncle.color == Color.RED) {
-                    parent.color = Color.BLACK
-                    uncle.color = Color.BLACK
-                    grandParent?.color = Color.RED
-                    curNode = grandParent
-                    parent = curNode?.parent
-                    grandParent = parent?.parent
-                    if (parent == grandParent?.leftChild) {
-                        uncle = grandParent?.rightChild
-                    }
-                    else {
-                        uncle = grandParent?.leftChild
-                    }
-                }
-                else {
-                    // рассматриваем левого сына
-                    if (curNode == parent.leftChild) {
-                        // левый сын левого отца
-                        if (parent == grandParent?.leftChild) {
-                            grandParent.color = Color.RED
-                            grandParent.leftChild = parent.rightChild
-
-                            parent.color = Color.BLACK
-                            parent.rightChild = grandParent
-                            parent.parent = grandParent.parent
-
-                            grandParent.parent = parent
-                        }
-                        // левый сын правого отца
-                        else {
-                            // поворот
-                            curNode?.parent = grandParent
-                            parent.parent = curNode
-                            parent.leftChild = curNode?.rightChild
-                            curNode?.rightChild = parent
-                            // свапаем, получаем случай правый сын правого отца
-                            var tmp = curNode
-                            curNode = parent
-                            parent = tmp
-
-                            parent?.color = Color.BLACK
-                            grandParent?.color = Color.RED
-
-                            parent?.parent = grandParent?.parent
-                            grandParent?.rightChild = parent?.leftChild
-                            parent?.leftChild = grandParent
-
-                            grandParent?.parent = parent
-                        }
-                    }
-                    // рассматриваем правого сына
-                    else {
-                        // правый сын левого отца
-                        if (parent == grandParent?.leftChild) {
-                            parent.rightChild = curNode?.leftChild
-                            parent.parent = curNode
-                            curNode?.leftChild = parent
-                            curNode?.parent = grandParent
-                            // получаем случай с левым сыном левым отцом
-                            var tmp = curNode
-                            curNode = parent
-                            parent = tmp
-
-                            grandParent.color = Color.RED
-                            grandParent.leftChild = parent?.rightChild
-
-                            parent?.color = Color.BLACK
-                            parent?.rightChild = grandParent
-                            parent?.parent = grandParent.parent
-
-                            grandParent.parent = parent
-                        }
-                        // правый сын правого отца
-                        else {
-                            parent.color = Color.BLACK
-                            grandParent?.color = Color.RED
-
-                            parent.parent = grandParent?.parent
-                            grandParent?.rightChild = parent.leftChild
-                            parent.leftChild = grandParent
-
-                            grandParent?.parent = parent
-                        }
-                    }
-                    curNode = parent
-                    parent = curNode?.parent
-                    grandParent = parent?.parent
-                    if (parent == grandParent?.leftChild) {
-                        uncle = grandParent?.rightChild
-                    }
-                    else {
-                        uncle = grandParent?.leftChild
-                    }
-                    // отец дядя дед ???
-                }
-            }
-            TODO("покрасить корень в черный")
-        }
-    }
 
     // поворот налево: n - новая "старшая вершина", отец n становится левым ребенком n
     private fun leftRotation(n: RBNode<K, V>?) {
@@ -190,7 +46,7 @@ class RBTree<K: Comparable<K>, V>: TreeMap<K, V, RBNode<K, V>>() {
     }
 
     // аналогичный поворот вправо
-    private  fun rightRotation(n: RBNode<K, V>?){
+    private fun rightRotation(n: RBNode<K, V>?){
         if (n == null) {
             return
         }
@@ -213,6 +69,74 @@ class RBTree<K: Comparable<K>, V>: TreeMap<K, V, RBNode<K, V>>() {
             }
         }
         parent.parent = n
+    }
+
+    override fun insert(key: K, value: V) {
+        // если такой ключ уже есть, то ?..
+        if (this.root == null) {
+            this.root = RBNode(key, value, null, Color.RED)
+            return
+        }
+        var curNodeParent = this.root
+        var curNode = if ((curNodeParent?.key ?: return) > key) curNodeParent.leftChild
+                                    else curNodeParent.rightChild
+        while (curNode != null) {
+            curNodeParent = curNode
+            var curNode = if (curNodeParent.key > key) curNodeParent.leftChild
+                                        else curNodeParent.rightChild
+        }
+        if (curNodeParent.key > key) {
+            curNodeParent.leftChild = RBNode(key, value, curNodeParent, Color.RED)
+        }
+        else {
+            curNodeParent.rightChild = RBNode(key, value, curNodeParent, Color.RED)
+        }
+        if (curNodeParent.color == Color.BLACK) {
+            return
+        }
+        fixInsertion(curNodeParent.parent, if (curNodeParent.key > key) Side.left else Side.right)
+    }
+
+    // A - предок первой из двух подряд красных, side - с какой стороны от А
+    private fun fixInsertion(A: RBNode<K, V>?, side: Side) {
+        if (side == Side.left) {
+            if (A?.rightChild?.color == Color.RED) {
+                A?.color = Color.RED
+                A?.leftChild?.color = Color.BLACK
+                A?.rightChild?.color = Color.BLACK
+                if (A == this.root) {
+                    A?.color = Color.BLACK
+                    return
+                }
+                if (A?.parent?.color == Color.RED) {
+                    fixInsertion(A?.parent?.parent, if (A == A?.parent?.leftChild) Side.left else Side.right)
+                }
+            }
+            else {
+              A?.color = Color.RED
+              A?.leftChild?.color = Color.BLACK
+              rightRotation(A?.leftChild)
+            }
+        }
+        else {
+            if (A?.leftChild?.color == Color.RED) {
+                A?.color = Color.RED
+                A?.leftChild?.color = Color.BLACK
+                A?.rightChild?.color = Color.BLACK
+                if (A == this.root) {
+                    A?.color = Color.BLACK
+                    return
+                }
+                if (A?.parent?.color == Color.RED) {
+                    fixInsertion(A?.parent?.parent, if (A == A?.parent?.leftChild) Side.left else Side.right)
+                }
+            }
+            else {
+                A?.color = Color.RED
+                A?.rightChild?.color = Color.BLACK
+                leftRotation(A?.rightChild)
+            }
+        }
     }
 
     override fun remove(key: K) {
