@@ -1,8 +1,8 @@
 package main.kotlin
 
 abstract class Node<K: Comparable<K>, V, N>(key: K, value: V, parent: N?){
-    internal val key: K = key
-    internal val value: V = value
+    internal var key: K = key
+    internal var value: V = value
     internal var parent: N? = parent
 
     internal var leftChild: N? = null
