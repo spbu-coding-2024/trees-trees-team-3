@@ -1,8 +1,8 @@
 package main.kotlin
 
 abstract class Node<K: Comparable<K>, V, N>(key: K, value: V, parent: N?){
-    internal val key: K = key
-    internal val value: V = value
+    internal var key: K = key
+    internal var value: V = value
     internal var parent: N? = parent
 
     internal var leftChild: N? = null
@@ -15,7 +15,7 @@ abstract class TreeMap<K: Comparable<K>, V, N: Node<K, V, N>>: Iterable<Pair<K, 
     protected abstract var size: Long
     protected abstract var root: N?
 
-    public fun find(key: K): V? {
+    fun find(key: K): V? {
         var currentNode = this.root
         while (currentNode != null) {
             if (currentNode.key == key) {
@@ -24,18 +24,18 @@ abstract class TreeMap<K: Comparable<K>, V, N: Node<K, V, N>>: Iterable<Pair<K, 
             else if (currentNode.key < key ) {
                 currentNode = currentNode.rightChild
             }
-            else if (currentNode.key < key) {
+            else {
                 currentNode = currentNode.leftChild
             }
         }
         return null
     }
 
-    public abstract fun insert(key: K, value: V)
-    public abstract fun remove(key: K)
+    abstract fun insert(key: K, value: V)
+    abstract fun remove(key: K)
 
     override fun iterator(): Iterator<Pair<K, V>> {
-        var allNodes = ArrayList<Pair<K, V>>()
+        val allNodes = ArrayList<Pair<K, V>>()
         fun dfs(curNode: N?) {
             if (curNode != null) {
                 if (curNode.leftChild != null) {
