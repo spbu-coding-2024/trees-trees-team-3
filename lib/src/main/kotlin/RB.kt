@@ -1,4 +1,6 @@
-package main.kotlin
+package RBTree
+
+import TreeMap.*
 
 enum class Color {
     RED, BLACK
@@ -21,6 +23,11 @@ class RBTree<K: Comparable<K>, V>: TreeMap<K, V, RBNode<K, V>>() {
 
     // поворот налево: n - новая "старшая вершина", отец n становится левым ребенком n
     private fun leftRotation(n: RBNode<K, V>?) {
+        var updateRoot = false
+        if (n?.parent == this.root) {
+            updateRoot  = true
+        }
+
         if (n == null) {
             return
         }
@@ -43,10 +50,19 @@ class RBTree<K: Comparable<K>, V>: TreeMap<K, V, RBNode<K, V>>() {
             }
         }
         parent.parent = n
+
+        if (updateRoot) {
+            this.root = n
+        }
     }
 
     // аналогичный поворот вправо
     private fun rightRotation(n: RBNode<K, V>?){
+        var updateRoot = false
+        if (n?.parent == this.root) {
+            updateRoot = true
+        }
+
         if (n == null) {
             return
         }
@@ -69,12 +85,16 @@ class RBTree<K: Comparable<K>, V>: TreeMap<K, V, RBNode<K, V>>() {
             }
         }
         parent.parent = n
+
+        if (updateRoot) {
+            this.root = n
+        }
     }
 
     override fun insert(key: K, value: V) {
         // если такой ключ уже есть, то ?..
         if (this.root == null) {
-            this.root = RBNode(key, value, null, Color.RED)
+            this.root = RBNode(key, value, null, Color.BLACK)
             return
         }
         var curNodeParent = this.root
@@ -82,7 +102,7 @@ class RBTree<K: Comparable<K>, V>: TreeMap<K, V, RBNode<K, V>>() {
                                     else curNodeParent.rightChild
         while (curNode != null) {
             curNodeParent = curNode
-            var curNode = if (curNodeParent.key > key) curNodeParent.leftChild
+            curNode = if (curNodeParent.key > key) curNodeParent.leftChild
                                         else curNodeParent.rightChild
         }
         if (curNodeParent.key > key) {
@@ -382,5 +402,39 @@ class RBTree<K: Comparable<K>, V>: TreeMap<K, V, RBNode<K, V>>() {
                 }
             }
         }
+    }
+
+    public fun printTree(): ArrayList<Triple<K?, V?, Color?>?> {
+        var tree = ArrayList<Triple<K?, V?, Color?>?>()
+
+        fun bfs(curNode: RBNode<K, V>?, tree: ArrayList<Triple<K?, V?, Color?>?>) {
+            var queue = ArrayDeque<RBNode<K, V>?>()
+            if (this.root == null) {
+                return
+            }
+            tree.addLast(Triple(this.root?.key, this.root?.value, this.root?.color))
+            queue.addLast(this.root)
+            while (queue.isNotEmpty()) {
+                var curNode = queue.removeFirst()
+                if (curNode?.leftChild == null) {
+                    tree.addLast(null)
+                }
+                else {
+                    tree.addLast(Triple(curNode.leftChild?.key, curNode.leftChild?.value, curNode.leftChild?.color))
+                    queue.addLast(curNode.leftChild)
+                }
+
+                if (curNode?.rightChild == null) {
+                    tree.addLast(null)
+                }
+                else {
+                    tree.addLast(Triple(curNode.rightChild?.key, curNode.rightChild?.value, curNode.rightChild?.color))
+                    queue.addLast(curNode.rightChild)
+                }
+            }
+        }
+
+        bfs(this.root, tree)
+        return tree
     }
 }

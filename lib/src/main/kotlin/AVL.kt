@@ -1,4 +1,7 @@
-package main.kotlin
+package AVLTree
+
+import TreeMap.*
+
 
 class AVLNode<K: Comparable<K>, V>(key: K, value: V, parent: AVLNode<K, V>?): Node<K, V, AVLNode<K, V>>(key, value, parent){
 
