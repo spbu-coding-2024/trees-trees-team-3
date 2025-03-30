@@ -20,7 +20,7 @@ class AVL<K: Comparable<K>, V>: TreeMap<K, V, AVLNode<K, V>>() {
         }
         return(findMin(nod.leftChild!!))
     }
-    private fun finder(key: K): AVLNode<K,V>? {
+    private fun finder(key: K): AVLNode<K,V> {
         var currentNode = this.root
         while (currentNode != null) {
             if (currentNode.key == key) {
@@ -33,9 +33,9 @@ class AVL<K: Comparable<K>, V>: TreeMap<K, V, AVLNode<K, V>>() {
                 currentNode = currentNode.leftChild
             }
         }
-        return null
+        throw IllegalArgumentException("There is no such node.")
     }
-    private fun rebalance(node: AVLNode<K, V>?) {
+    private fun rebalanced(node: AVLNode<K, V>?) {
         var currentNode = node
         while (currentNode != null) {
             val parentNode = currentNode.parent
@@ -58,7 +58,7 @@ class AVL<K: Comparable<K>, V>: TreeMap<K, V, AVLNode<K, V>>() {
                 if (currentNode.rightChild == null) {
                     val newNode = AVLNode(key, value, currentNode)
                     currentNode.rightChild = newNode
-                    rebalance(currentNode)
+                    rebalanced(currentNode)
                     size++
                     return
                 }
@@ -68,7 +68,7 @@ class AVL<K: Comparable<K>, V>: TreeMap<K, V, AVLNode<K, V>>() {
                 if (currentNode.leftChild == null) {
                     val newNode = AVLNode(key, value, currentNode)
                     currentNode.leftChild = newNode
-                    rebalance(currentNode)
+                    rebalanced(currentNode)
                     size++
                     return
                 }
@@ -78,8 +78,7 @@ class AVL<K: Comparable<K>, V>: TreeMap<K, V, AVLNode<K, V>>() {
     }
     override fun remove(key: K) {
         val node = finder(key)
-        val parentNode = node?.parent
-        require(node != null) {"Deletion is not possible: there is no such node."}
+        val parentNode = node.parent
         if (node.leftChild == null && node.rightChild == null) {
             if (node.parent != null) {
                 if (parentNode?.leftChild == node) {
@@ -87,7 +86,7 @@ class AVL<K: Comparable<K>, V>: TreeMap<K, V, AVLNode<K, V>>() {
                 } else {
                     parentNode?.rightChild = null
                 }
-                rebalance(parentNode!!)
+                rebalanced(parentNode!!)
             }
             else {
                 this.root = null
@@ -103,7 +102,7 @@ class AVL<K: Comparable<K>, V>: TreeMap<K, V, AVLNode<K, V>>() {
                         parentNode.rightChild = node.rightChild
                     }
                     node.rightChild?.parent = parentNode
-                    rebalance(parentNode)
+                    rebalanced(parentNode)
                 }
                 else {
                     node.rightChild?.parent = null
@@ -119,7 +118,7 @@ class AVL<K: Comparable<K>, V>: TreeMap<K, V, AVLNode<K, V>>() {
                         parentNode.rightChild = node.leftChild
                     }
                     node.leftChild?.parent = parentNode
-                    rebalance(parentNode)
+                    rebalanced(parentNode)
                 }
                 else {
                     node.leftChild?.parent = null
@@ -129,41 +128,22 @@ class AVL<K: Comparable<K>, V>: TreeMap<K, V, AVLNode<K, V>>() {
         }
         else {
             val successor = findMin(node.rightChild!!)
-            val successorKey = successor.key
-            val successorParent = successor.parent
-            val leftNode = node.leftChild
-            val successorValue = successor.value
-            if (successor.parent?.leftChild == successor) {
-                successor.parent?.leftChild = successor.rightChild
-                successor.rightChild?.parent = successor.parent
-                val newNode = AVLNode(key = successorKey, value = successorValue, 
-                    node.parent)
-                newNode.leftChild = leftNode
-                leftNode?.parent = newNode
-                newNode.rightChild = node.rightChild
-                node.rightChild?.parent = newNode
-                if (parentNode != null) {
-                    if (parentNode.leftChild == node)
-                        parentNode.leftChild = newNode
-                    else parentNode.rightChild = newNode
+            node.key = successor.key
+            node.value = successor.value
+            val successorParent = successor.parent!!
+            if (successorParent.leftChild == successor) {
+                successorParent.leftChild = successor.rightChild
+                if (successor.rightChild != null) {
+                    successor.rightChild!!.parent = successor.parent
                 }
-                else this.root = newNode
-                rebalance(successorParent!!)
+                rebalanced(successorParent)
             }
             else {
-                val newNode = AVLNode(key = successorKey, value = successorValue,
-                    node.parent)
-                newNode.leftChild = leftNode
-                leftNode?.parent = newNode
-                newNode.rightChild = successor.rightChild
-                newNode.rightChild?.parent = newNode
-                if (parentNode != null) {
-                    if (parentNode.leftChild == node)
-                        parentNode.leftChild = newNode
-                    else parentNode.rightChild = newNode
+                successorParent.rightChild = successor.rightChild
+                if (successor.rightChild != null) {
+                    successor.rightChild!!.parent = successor.parent
                 }
-                else this.root = newNode
-                rebalance(newNode)
+                rebalanced(successorParent)
             }
         }
         size--
