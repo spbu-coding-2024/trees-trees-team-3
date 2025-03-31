@@ -465,6 +465,6 @@ class RBTree<K: Comparable<K>, V>: TreeMap<K, V, RBNode<K, V>>() {
             }
         }
 
-        return if (checkBlackHeight(this.root) != 0) true else false
+        return if (checkBlackHeight(this.root) != -1) true else false
     }
 }
