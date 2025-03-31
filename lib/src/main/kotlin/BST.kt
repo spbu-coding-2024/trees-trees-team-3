@@ -1,4 +1,7 @@
-package main.kotlin
+package BSTree
+
+import TreeMap.*
+
 
 /**
  * Node from a binary search tree

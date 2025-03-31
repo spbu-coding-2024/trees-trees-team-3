@@ -1,4 +1,4 @@
-package main.kotlin
+package TreeMap
 
 abstract class Node<K: Comparable<K>, V, N>(key: K, value: V, parent: N?){
     internal var key: K = key
@@ -15,7 +15,7 @@ abstract class TreeMap<K: Comparable<K>, V, N: Node<K, V, N>>: Iterable<Pair<K, 
     protected abstract var size: Long
     protected abstract var root: N?
 
-    fun find(key: K): V? {
+    public fun find(key: K): V? {
         var currentNode = this.root
         while (currentNode != null) {
             if (currentNode.key == key) {
@@ -31,9 +31,9 @@ abstract class TreeMap<K: Comparable<K>, V, N: Node<K, V, N>>: Iterable<Pair<K, 
         return null
     }
 
-    abstract fun insert(key: K, value: V)
-    abstract fun remove(key: K)
     internal fun getSize(): Long = size
+    public abstract fun insert(key: K, value: V)
+    public abstract fun remove(key: K)
 
     override fun iterator(): Iterator<Pair<K, V>> {
         val allNodes = ArrayList<Pair<K, V>>()
