@@ -93,6 +93,7 @@ class RBTree<K: Comparable<K>, V>: TreeMap<K, V, RBNode<K, V>>() {
 
     override fun insert(key: K, value: V) {
         // если такой ключ уже есть, то ?..
+        this.size += 1
         if (this.root == null) {
             this.root = RBNode(key, value, null, Color.BLACK)
             return
@@ -160,6 +161,7 @@ class RBTree<K: Comparable<K>, V>: TreeMap<K, V, RBNode<K, V>>() {
     }
 
     override fun remove(key: K) {
+        this.size -= 1
         var curNode = this.root
         while (curNode != null) {
             if (curNode.key == key) {
