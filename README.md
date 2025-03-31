@@ -8,14 +8,20 @@
 # Установка
 Склонируйте репозиторий:
 
-```git clone git@github.com:spbu-coding-2024/trees-trees-team-3.git```
+```
+code/git clone git@github.com:spbu-coding-2024/trees-trees-team-3.git</p>
+```
 
 Затем перейдите в директорию с проектом
 # Сборка и тестирование
 Собрать библиотеку можно с помощью команды 
 
-```./gradlew build```
+```
+./gradlew build
+```
 
 Выполнение тестов:
 
-```./gradlew test```
+```
+./gradlew test
+```
