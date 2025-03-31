@@ -9,7 +9,7 @@
 Склонируйте репозиторий:
 
 ```
-code/git clone git@github.com:spbu-coding-2024/trees-trees-team-3.git</p>
+git clone git@github.com:spbu-coding-2024/trees-trees-team-3.git
 ```
 
 Затем перейдите в директорию с проектом
