@@ -3,6 +3,7 @@ package test.kotlin.org
 import RBTree.*
 import org.junit.jupiter.api.*
 import org.junit.jupiter.api.Assertions.*
+// Визуализатор: https://www.cs.usfca.edu/~galles/visualization/RedBlack.html
 
 
 class Insertion {
