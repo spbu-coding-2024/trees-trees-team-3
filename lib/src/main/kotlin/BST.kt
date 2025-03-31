@@ -1,4 +1,7 @@
-package main.kotlin
+package BSTree
+
+import TreeMap.*
+
 
 class BSTNode<K: Comparable<K>, V>(key: K, value: V, parent: BSTNode<K, V>?): Node<K, V, BSTNode<K, V>>(key, value, parent) {
 }
