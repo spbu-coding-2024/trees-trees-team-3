@@ -33,6 +33,7 @@ abstract class TreeMap<K: Comparable<K>, V, N: Node<K, V, N>>: Iterable<Pair<K, 
 
     abstract fun insert(key: K, value: V)
     abstract fun remove(key: K)
+    internal fun getSize(): Long = size
 
     override fun iterator(): Iterator<Pair<K, V>> {
         val allNodes = ArrayList<Pair<K, V>>()
