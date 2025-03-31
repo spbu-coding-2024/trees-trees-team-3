@@ -175,7 +175,7 @@ class RBTree<K: Comparable<K>, V>: TreeMap<K, V, RBNode<K, V>>() {
             throw NoSuchElementException("No such key in map")
         }
 
-        if (curNode == this.root) {
+        if (curNode == this.root && this.root?.leftChild == null && this.root?.rightChild == null) {
             this.root = null
             return
         }
@@ -202,6 +202,7 @@ class RBTree<K: Comparable<K>, V>: TreeMap<K, V, RBNode<K, V>>() {
             curNode.key = x?.key ?: return
             curNode.value = x.value
             deletion(x)
+            return
         }
         // черная с одним потомком
         else if (curNode.color == Color.BLACK && (curNode.leftChild != null || curNode.rightChild != null)) {
@@ -236,13 +237,11 @@ class RBTree<K: Comparable<K>, V>: TreeMap<K, V, RBNode<K, V>>() {
     // балансировка: A - вершина первая, у которой разбаланс поддеревьев, side - у какого поддерева меньше черная высота
     private fun fixDeletion(A: RBNode<K, V>?, side: Side) {
         if (A == null) {
-            TODO("на подумать")
             return
         }
 
         // удалили вершину справа
         if (side == Side.right) {
-            TODO("проверить условия случаев - где-то вместо ссылки на черного ребенка фактически эквивалентный null")
             // красный родитель, черный брат с хотя бы одним красным потомком (родство относительно удаленной вершины)
             if (A.color == Color.RED && A.leftChild?.color == Color.BLACK &&
                 ((A.leftChild?.leftChild?.color ?: Color.BLACK) == Color.RED ||
@@ -436,5 +435,36 @@ class RBTree<K: Comparable<K>, V>: TreeMap<K, V, RBNode<K, V>>() {
 
         bfs(this.root, tree)
         return tree
+    }
+
+    public fun checkBalance(): Boolean {
+
+        fun checkBlackHeight(node: RBNode<K, V>?): Int {
+            if (node == null && this.root == null) {
+                return 1
+            }
+            if (node == null) {
+                return 0
+            }
+            var leftH = checkBlackHeight(node.leftChild)
+            if (leftH == -1) {
+                return -1
+            }
+            leftH += (if ((node.leftChild?.color ?: Color.BLACK) == Color.BLACK) 1
+            else 0)
+            var rightH = checkBlackHeight(node.rightChild)
+            if (rightH == -1) {
+                return -1
+            }
+            rightH += (if ((node.rightChild?.color ?: Color.BLACK) == Color.BLACK) 1
+            else 0)
+            if (leftH != rightH) {
+                return -1
+            } else {
+                return leftH
+            }
+        }
+
+        return if (checkBlackHeight(this.root) != 0) true else false
     }
 }
