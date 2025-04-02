@@ -1,4 +1,4 @@
-package test.kotlin.org
+package test.kotlin
 
 import RBTree.*
 import org.junit.jupiter.api.*
@@ -87,7 +87,7 @@ class Insertion {
     }
 
     @Test
-    @DisplayName("Stress test")
+    @DisplayName("Stress test for insertion")
     fun stress() {
         repeat (100) {
             map.insert((0..10_000).random(), 0)
@@ -98,11 +98,12 @@ class Insertion {
 
 
 class Deletion {
-    private var map: RBTree<Int, Int> = RBTree<Int, Int>()
+    private lateinit var map: RBTree<Int, Int>
 
     @Test
     @DisplayName("Delete red node")
     fun deleteRed() {
+        map = RBTree<Int, Int>()
         for (i in 0..10) {
             map.insert(i, 0)
         }
@@ -113,6 +114,7 @@ class Deletion {
     @Test
     @DisplayName("Delete red parent, black brother with red child")
     fun delete1() {
+        map = RBTree<Int, Int>()
         for (i in 0..10) {
             map.insert(i, 0)
         }
@@ -123,6 +125,7 @@ class Deletion {
     @Test
     @DisplayName("Delete red parent, black brother with black children")
     fun delete2() {
+        map = RBTree<Int, Int>()
         for (i in 0..11) {
             map.insert(i, 0)
         }
@@ -133,6 +136,7 @@ class Deletion {
     @Test
     @DisplayName("Delete black parent, red brother with right child's black children")
     fun delete3() {
+        map = RBTree<Int, Int>()
         map.insert(10, 0)
         map.insert(5, 0)
         map.insert(20, 0)
@@ -148,6 +152,7 @@ class Deletion {
     @Test
     @DisplayName("Delete black parent, red brother and right child has red child")
     fun delete4() {
+        map = RBTree<Int, Int>()
         map.insert(20, 0)
         map.insert(10, 0)
         map.insert(30, 0)
@@ -161,6 +166,7 @@ class Deletion {
     @Test
     @DisplayName("Delete black parent, black brother with red child")
     fun delete5() {
+        map = RBTree<Int, Int>()
         map.insert(2, 0)
         map.insert(3, 0)
         map.insert(1, 0)
@@ -172,6 +178,7 @@ class Deletion {
     @Test
     @DisplayName("Delete black parent, black brother with black children")
     fun delete6() {
+        map = RBTree<Int, Int>()
         map.insert(2, 0)
         map.insert(1, 0)
         map.insert(3, 0)
@@ -180,27 +187,21 @@ class Deletion {
         map.remove(1)
         assertEquals(true, map.checkBalance())
     }
-}
-
-class RandomTest {
-    private var map = RBTree<Int, Int>()
-
 
     @Test
-    fun `random insertons and deletions`() {
-        val myKeys: MutableSet<Int> = mutableSetOf()
-        var newKey: Int
-        for (i in 0..1000) {
-            newKey = (0..10_000).random()
-            if (!(map.contains(newKey))) {
-                map.insert(newKey, 0)
+    @DisplayName("Stress test for deletion")
+    fun stress() {
+        repeat(100) {
+            repeat(100) {
+                map = RBTree<Int, Int>()
+                map.insert((0..100).random(), 0)
             }
-            try {
-                newKey = (0..10_000).random()
-                map.remove(newKey)
+            var to_remove = (0..100).random()
+            if (map.contains(to_remove)) {
+                map.remove(to_remove)
             }
-            catch (e: NoSuchElementException) {}
+            assertEquals(true, map.checkBalance())
         }
-        assertEquals(true, map.checkBalance())
+
     }
 }
