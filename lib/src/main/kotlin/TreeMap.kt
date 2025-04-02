@@ -52,7 +52,7 @@ abstract class TreeMap<K: Comparable<K>, V, N: Node<K, V, N>>: Iterable<Pair<K, 
         return null
     }
 
-    internal fun getSize(): Long = size
+    internal fun getSize(): Int = size
     public abstract fun insert(key: K, value: V)
     public abstract fun remove(key: K)
 
