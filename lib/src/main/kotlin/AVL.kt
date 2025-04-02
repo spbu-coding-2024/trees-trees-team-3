@@ -13,6 +13,7 @@ class AVLNode<K: Comparable<K>, V>(key: K, value: V, parent: AVLNode<K, V>?):
 
 
 class AVL<K: Comparable<K>, V>: TreeMap<K, V, AVLNode<K, V>>() {
+    override protected var root: AVLNode<K, V>? = null
     override var size: Long = 0
     override var root: AVLNode<K, V>? = null
     // нахождение преемника вершины

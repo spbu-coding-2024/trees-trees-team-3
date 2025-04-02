@@ -45,6 +45,8 @@ class BST<K : Comparable<K>, V> : TreeMap<K, V, BSTNode<K, V>>() {
 		while (current != null) {
 			require(key != current.key) { "Node with this key already exists" }
 
+class BST<K: Comparable<K>, V>: TreeMap<K, V, BSTNode<K, V>>(){
+    override protected var root: BSTNode<K, V>? = null
 			if (key < current.key) {
 				if (current.leftChild != null) {
 					current = current.leftChild

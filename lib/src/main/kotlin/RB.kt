@@ -18,8 +18,7 @@ class RBNode<K: Comparable<K>, V>(key: K, value: V, parent: RBNode<K, V>?, color
 
 
 class RBTree<K: Comparable<K>, V>: TreeMap<K, V, RBNode<K, V>>() {
-    override protected var size: Long = 0
-    override protected var root: RBNode<K, V>? = null
+    override var root: RBNode<K, V>? = null
 
     // поворот налево: n - новая "старшая вершина", отец n становится левым ребенком n
     private fun leftRotation(n: RBNode<K, V>?) {
@@ -93,6 +92,9 @@ class RBTree<K: Comparable<K>, V>: TreeMap<K, V, RBNode<K, V>>() {
 
     override fun insert(key: K, value: V) {
         // если такой ключ уже есть, то ?..
+        if (this.contains(key)) {
+            return
+        }
         this.size += 1
         if (this.root == null) {
             this.root = RBNode(key, value, null, Color.BLACK)
@@ -115,7 +117,20 @@ class RBTree<K: Comparable<K>, V>: TreeMap<K, V, RBNode<K, V>>() {
         if (curNodeParent.color == Color.BLACK) {
             return
         }
-        fixInsertion(curNodeParent.parent, if (curNodeParent.key > key) Side.left else Side.right)
+        // вставили к корню
+        if (curNodeParent.parent == null) {
+            return
+        }
+        // проверяем, находятся ли дед и отец с одной стороны от вставленной вершины, и делаем поворот, если нужно
+        if (curNodeParent.key > key && curNodeParent == curNodeParent.parent!!.rightChild) {
+            rightRotation(curNodeParent.leftChild)
+            curNodeParent = curNodeParent.parent
+        }
+        else if (curNodeParent.key < key && curNodeParent == curNodeParent.parent!!.leftChild) {
+            leftRotation(curNodeParent.rightChild)
+            curNodeParent = curNodeParent.parent
+        }
+        fixInsertion(curNodeParent!!.parent, if (curNodeParent.parent!!.key > key) Side.left else Side.right)
     }
 
     // A - предок первой из двух подряд красных, side - с какой стороны от А
@@ -130,7 +145,18 @@ class RBTree<K: Comparable<K>, V>: TreeMap<K, V, RBNode<K, V>>() {
                     return
                 }
                 if (A?.parent?.color == Color.RED) {
-                    fixInsertion(A?.parent?.parent, if (A == A?.parent?.leftChild) Side.left else Side.right)
+                    // относительно деда A две подряд красные опять могут чередоваться - лево-право или право-лево
+                    // поэтому перед рекурсивным вызовом снова может потребоваться поворот
+                    var newA = A
+                    if (A?.parent == A?.parent?.parent?.leftChild && A == A?.parent?.rightChild) {
+                        leftRotation(A)
+                        newA = A.leftChild
+                    }
+                    else if (A?.parent == A?.parent?.parent?.rightChild && A == A?.parent?.leftChild) {
+                        rightRotation(A)
+                        newA = A.rightChild
+                    }
+                    fixInsertion(newA?.parent?.parent, if (newA == newA?.parent?.leftChild) Side.left else Side.right)
                 }
             }
             else {
@@ -149,7 +175,18 @@ class RBTree<K: Comparable<K>, V>: TreeMap<K, V, RBNode<K, V>>() {
                     return
                 }
                 if (A?.parent?.color == Color.RED) {
-                    fixInsertion(A?.parent?.parent, if (A == A?.parent?.leftChild) Side.left else Side.right)
+                    // относительно деда A две подряд красные опять могут чередоваться - лево-право или право-лево
+                    // поэтому перед рекурсивным вызовом снова может потребоваться поворот
+                    var newA = A
+                    if (A?.parent == A?.parent?.parent?.leftChild && A == A?.parent?.rightChild) {
+                        leftRotation(A)
+                        newA = A.leftChild
+                    }
+                    else if (A?.parent == A?.parent?.parent?.rightChild && A == A?.parent?.leftChild) {
+                        rightRotation(A)
+                        newA = A.rightChild
+                    }
+                    fixInsertion(newA?.parent?.parent, if (newA == newA?.parent?.leftChild) Side.left else Side.right)
                 }
             }
             else {
@@ -241,6 +278,7 @@ class RBTree<K: Comparable<K>, V>: TreeMap<K, V, RBNode<K, V>>() {
         if (A == null) {
             return
         }
+
 
         // удалили вершину справа
         if (side == Side.right) {
@@ -364,7 +402,7 @@ class RBTree<K: Comparable<K>, V>: TreeMap<K, V, RBNode<K, V>>() {
             // черный родитель, красный брат, у его левого потомка есть красный потомок
             else if (A.color == Color.BLACK && A.rightChild?.color == Color.RED &&
                     ((A.rightChild?.leftChild?.leftChild?.color ?: Color.BLACK) == Color.RED ||
-                     (A.rightChild?.leftChild?.leftChild?.color ?: Color.BLACK) == Color.RED)) {
+                     (A.rightChild?.leftChild?.rightChild?.color ?: Color.BLACK) == Color.RED)) {
                 if (A.rightChild?.leftChild?.leftChild?.color == Color.RED) {
                     A.rightChild?.rightChild?.color = Color.RED
                     A.rightChild?.color = Color.BLACK
@@ -468,5 +506,21 @@ class RBTree<K: Comparable<K>, V>: TreeMap<K, V, RBNode<K, V>>() {
         }
 
         return if (checkBlackHeight(this.root) != -1) true else false
+    }
+
+    public fun redInvariant(): Boolean {
+
+        fun search(node: RBNode<K, V>?): Boolean {
+            if (node == null) {
+                return true
+            }
+            if (node.color == Color.RED) {
+                if ((node.leftChild?.color ?: Color.BLACK) == Color.RED || (node.rightChild?.color ?: Color.BLACK) == Color.RED) {
+                    return false
+                }
+            }
+            return search(node.leftChild) && search(node.rightChild)
+        }
+        return search(this.root)
     }
 }
