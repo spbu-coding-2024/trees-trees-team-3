@@ -85,6 +85,15 @@ class Insertion {
         assertEquals(ans, map.printTree())
         assertEquals(true, map.checkBalance())
     }
+
+    @Test
+    @DisplayName("Stress test")
+    fun stress() {
+        repeat (100) {
+            map.insert((0..10_000).random(), 0)
+        }
+        assertEquals(true, map.checkBalance())
+    }
 }
 
 
@@ -169,6 +178,29 @@ class Deletion {
         map.insert(0, 0)
         map.remove(0)
         map.remove(1)
+        assertEquals(true, map.checkBalance())
+    }
+}
+
+class RandomTest {
+    private var map = RBTree<Int, Int>()
+
+
+    @Test
+    fun `random insertons and deletions`() {
+        val myKeys: MutableSet<Int> = mutableSetOf()
+        var newKey: Int
+        for (i in 0..1000) {
+            newKey = (0..10_000).random()
+            if (!(map.contains(newKey))) {
+                map.insert(newKey, 0)
+            }
+            try {
+                newKey = (0..10_000).random()
+                map.remove(newKey)
+            }
+            catch (e: NoSuchElementException) {}
+        }
         assertEquals(true, map.checkBalance())
     }
 }
