@@ -1,5 +1,3 @@
-package test.kotlin
-
 import RBTree.*
 import org.junit.jupiter.api.*
 import org.junit.jupiter.api.Assertions.*

@@ -1,7 +1,4 @@
-package test.kotlin
-
-import main.kotlin.BST
-import main.kotlin.TreeMap
+import BSTree.*
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.BeforeEach
