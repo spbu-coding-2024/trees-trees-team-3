@@ -1,4 +1,4 @@
-package main.kotlin
+package TreeMap
 
 abstract class Node<K: Comparable<K>, V, N>(key: K, value: V, parent: N?){
     internal var key: K = key

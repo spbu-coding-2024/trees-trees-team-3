@@ -1,4 +1,5 @@
-package main.kotlin
+import TreeMap.Node
+import TreeMap.TreeMap
 import kotlin.math.max
 
 const val RIGHT_HEAVY = 2
@@ -28,7 +29,7 @@ class AVL<K: Comparable<K>, V>: TreeMap<K, V, AVLNode<K, V>>() {
         return (findMin(nod.leftChild!!))
     }
     // поиск вершины по ключу
-    private fun finder(key: K): AVLNode<K,V> {
+    private fun finder(key: K): AVLNode<K, V> {
         var currentNode = this.root
         while (currentNode != null) {
             if (currentNode.key == key) {
