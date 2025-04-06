@@ -38,6 +38,14 @@ fun `insert root`() {
  assertThat(tree.root?.key).isEqualTo(5)
  assertThat(isBalanced(tree)).isTrue()
 }
+ @Test
+ fun `insert a node that already exist`() {
+  tree.insert(5, 1005)
+  tree.insert(5, 1010)
+  assertThat(tree.root?.key).isEqualTo(5)
+  assertThat(tree.root?.value).isEqualTo(1010)
+  assertThat(isBalanced(tree)).isTrue()
+ }
 @Test
 fun `iterator of null`(){
  val keysFromIterator = iter(tree)
