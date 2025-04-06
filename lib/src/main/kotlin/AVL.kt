@@ -83,7 +83,7 @@ class AVL<K: Comparable<K>, V>: TreeMap<K, V, AVLNode<K, V>>() {
                         parentNode = currentNode
                         currentNode = currentNode.leftChild
                     }
-                    currentNode.key == key -> {
+                    else -> {
                         currentNode.value = value
                         return
                     }
