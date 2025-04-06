@@ -325,8 +325,8 @@ fun `stress test`(){
  val insertAttempts = 100_000
  val removeAttempts = 10_000
  repeat(insertAttempts) {
-  val key = Random.nextInt(0, 99999)
-  val value = Random.nextInt(0, 99999)
+  val key = Random.nextInt(0, 1_000_000)
+  val value = Random.nextInt(0, 1_000_00)
   try {
    tree.insert(key, value)
   }
@@ -335,7 +335,7 @@ fun `stress test`(){
   }
  }
  repeat(removeAttempts) {
-  val key = Random.nextInt(0, 999)
+  val key = Random.nextInt(0, 1_000_000)
   try {
    tree.remove(key)
   }
