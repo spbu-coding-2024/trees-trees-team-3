@@ -12,8 +12,30 @@ abstract class Node<K: Comparable<K>, V, N>(key: K, value: V, parent: N?){
 
 
 abstract class TreeMap<K: Comparable<K>, V, N: Node<K, V, N>>: Iterable<Pair<K, V>> {
-    protected abstract var size: Int
     internal abstract var root: N?
+    public var size: Int = 0
+
+    public fun contains(key: K): Boolean {
+        var curNode = this.root
+        if (curNode == null) {
+            return false
+        }
+
+        while (curNode != null) {
+            if (curNode.key == key) {
+                return true
+            }
+            else if (curNode.key > key) {
+                curNode = curNode.leftChild
+            }
+            else if (curNode.key < key) {
+                curNode = curNode.rightChild
+            }
+        }
+
+        return false
+    }
+
     public fun find(key: K): V? {
         var currentNode = this.root
         while (currentNode != null) {
@@ -29,6 +51,8 @@ abstract class TreeMap<K: Comparable<K>, V, N: Node<K, V, N>>: Iterable<Pair<K, 
         }
         return null
     }
+
+    internal fun getSize(): Long = size
     public abstract fun insert(key: K, value: V)
     public abstract fun remove(key: K)
 
