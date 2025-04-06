@@ -12,8 +12,8 @@ abstract class Node<K: Comparable<K>, V, N>(key: K, value: V, parent: N?){
 
 
 abstract class TreeMap<K: Comparable<K>, V, N: Node<K, V, N>>: Iterable<Pair<K, V>> {
-    protected abstract var size: Long
-    protected abstract var root: N?
+    protected abstract var size: Int
+    internal abstract var root: N?
     public fun find(key: K): V? {
         var currentNode = this.root
         while (currentNode != null) {
