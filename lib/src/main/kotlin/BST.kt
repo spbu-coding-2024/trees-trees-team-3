@@ -5,8 +5,8 @@ class BSTNode<K: Comparable<K>, V>(key: K, value: V, parent: BSTNode<K, V>?): No
 
 
 class BST<K: Comparable<K>, V>: TreeMap<K, V, BSTNode<K, V>>(){
-    override protected var size: Long = 0
-    override protected var root: BSTNode<K, V>? = null
+    override protected var size: Int = 0
+    override internal var root: BSTNode<K, V>? = null
 
     override fun insert(key: K, value: V) {
         TODO("Not yet implemented")
