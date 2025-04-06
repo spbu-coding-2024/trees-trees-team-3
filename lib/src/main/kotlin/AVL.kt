@@ -1,5 +1,5 @@
 package main.kotlin
-import kotlin.math.*
+import kotlin.math.max
 
 const val RIGHT_HEAVY = 2
 const val LEFT_HEAVY = -2
