@@ -1,5 +1,6 @@
-import main.kotlin.AVL
-import main.kotlin.AVLNode
+package avlTest
+import avlTree.AVL
+import avlTree.AVLNode
 import org.junit.jupiter.api.Test
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.fail
