@@ -1,5 +1,12 @@
-package main.kotlin
-import kotlin.math.*
+package avlTree
+import TreeMap.Node
+import TreeMap.TreeMap
+import kotlin.math.max
+
+const val RIGHT_HEAVY = 2
+const val LEFT_HEAVY = -2
+const val LEFT_RIGHT_HEAVY = -1
+const val RIGHT_LEFT_HEAVY = 1
 
 class AVLNode<K: Comparable<K>, V>(key: K, value: V, parent: AVLNode<K, V>?):
     Node<K, V, AVLNode<K, V>>(key, value, parent){
@@ -13,8 +20,7 @@ class AVLNode<K: Comparable<K>, V>(key: K, value: V, parent: AVLNode<K, V>?):
 
 
 class AVL<K: Comparable<K>, V>: TreeMap<K, V, AVLNode<K, V>>() {
-    override protected var root: AVLNode<K, V>? = null
-    override var size: Long = 0
+    override var size: Int = 0
     override var root: AVLNode<K, V>? = null
     // нахождение преемника вершины
     private fun findMin(nod: AVLNode<K, V>): AVLNode<K, V> {
@@ -24,7 +30,7 @@ class AVL<K: Comparable<K>, V>: TreeMap<K, V, AVLNode<K, V>>() {
         return (findMin(nod.leftChild!!))
     }
     // поиск вершины по ключу
-    private fun finder(key: K): AVLNode<K,V> {
+    private fun finder(key: K): AVLNode<K, V> {
         var currentNode = this.root
         while (currentNode != null) {
             if (currentNode.key == key) {
@@ -39,8 +45,6 @@ class AVL<K: Comparable<K>, V>: TreeMap<K, V, AVLNode<K, V>>() {
         }
         throw IllegalArgumentException("There is no such node.")
     }
-    // вернуть корень
-    internal fun getRoot() = this.root
     // сбалансировать все дерево
     private fun rebalanced(node: AVLNode<K, V>?) {
         var currentNode = node
@@ -52,34 +56,39 @@ class AVL<K: Comparable<K>, V>: TreeMap<K, V, AVLNode<K, V>>() {
         }
     }
     override fun insert(key: K, value: V) {
-        if (this.root == null) {
+        val rootVal = this.root
+        if (rootVal == null) {
             this.root = AVLNode(key = key, value = value, null)
             size++
             return
         }
         else {
-            var currentNode = this.root!!
+            var currentNode = rootVal
+            var parentNode : AVLNode<K, V>? = null
             while (true) {
-                require(currentNode.key != key) {
-                    "It is not possible to insert a node " +
-                            "as such a node already exists."
-                }
-                if (currentNode.key < key) {
-                    if (currentNode.rightChild == null) {
-                        val newNode = AVLNode(key, value, currentNode)
-                        currentNode.rightChild = newNode
-                        rebalanced(currentNode)
+                when {
+                    currentNode == null -> {
+                        currentNode = AVLNode(key, value, parentNode!!)
+                        if (parentNode.key < key) {
+                            parentNode.rightChild = currentNode
+                        }
+                        else parentNode.leftChild = currentNode
+                        rebalanced(parentNode)
                         size++
                         return
-                    } else currentNode = currentNode.rightChild!!
-                } else {
-                    if (currentNode.leftChild == null) {
-                        val newNode = AVLNode(key, value, currentNode)
-                        currentNode.leftChild = newNode
-                        rebalanced(currentNode)
-                        size++
+                    }
+                    currentNode.key < key -> {
+                        parentNode = currentNode
+                        currentNode = currentNode.rightChild
+                    }
+                    currentNode.key > key -> {
+                        parentNode = currentNode
+                        currentNode = currentNode.leftChild
+                    }
+                    else -> {
+                        currentNode.value = value
                         return
-                    } else currentNode = currentNode.leftChild!!
+                    }
                 }
             }
         }
@@ -92,8 +101,8 @@ class AVL<K: Comparable<K>, V>: TreeMap<K, V, AVLNode<K, V>>() {
         есть родитель, дальше проверка на то, что удаляемый лист левый/правый ребенок
          */
         if (node.leftChild == null && node.rightChild == null) {
-            if (node.parent != null) {
-                if (parentNode!!.leftChild == node) {
+            if (parentNode != null) {
+                if (parentNode.leftChild == node) {
                     parentNode.leftChild = null
                 } else {
                     parentNode.rightChild = null
@@ -106,61 +115,30 @@ class AVL<K: Comparable<K>, V>: TreeMap<K, V, AVLNode<K, V>>() {
         }
         // если удаляемый узел имеет лишь 1 ребенка
         else if (node.leftChild == null || node.rightChild == null) {
-            if (node.leftChild == null) {
-                if (parentNode != null) {
-                    if (parentNode.leftChild == node) {
-                        parentNode.leftChild = node.rightChild
-                    }
-                    else {
-                        parentNode.rightChild = node.rightChild
-                    }
-                    node.rightChild!!.parent = parentNode
-                    rebalanced(parentNode)
+            val singleChild = node.leftChild ?: node.rightChild
+            if (parentNode != null) {
+                if (parentNode.leftChild == node) {
+                    parentNode.leftChild = singleChild
                 }
                 else {
-                    node.rightChild!!.parent = null
-                    this.root = node.rightChild
+                    parentNode.rightChild = singleChild
                 }
+                singleChild!!.parent = parentNode
+                rebalanced(parentNode)
             }
             else {
-                if (parentNode != null) {
-                    if (parentNode.leftChild == node) {
-                        parentNode.leftChild = node.leftChild
-                    }
-                    else {
-                        parentNode.rightChild = node.leftChild
-                    }
-                    node.leftChild!!.parent = parentNode
-                    rebalanced(parentNode)
-                }
-                else {
-                    node.leftChild!!.parent = null
-                    this.root = node.leftChild
-                }
+                singleChild!!.parent = null
+                this.root = singleChild
             }
+
         }
         // удаляемый узел имеет 2 детей
         else {
             val successor = findMin(node.rightChild!!)
-            node.key = successor.key
+            val newKey = successor.key
             node.value = successor.value
-            val successorParent = successor.parent!!
-            // преемник не является правым ребенком удаляемого узла
-            if (successorParent.leftChild == successor) {
-                successorParent.leftChild = successor.rightChild
-                if (successor.rightChild != null) {
-                    successor.rightChild!!.parent = successor.parent
-                }
-                rebalanced(successorParent)
-            }
-            // преемник является правым ребенком удаляемого узла
-            else {
-                successorParent.rightChild = successor.rightChild
-                if (successor.rightChild != null) {
-                    successor.rightChild!!.parent = successor.parent
-                }
-                rebalanced(successorParent)
-            }
+            remove(newKey)
+            node.key = newKey
         }
         size--
     }
@@ -222,16 +200,16 @@ class AVL<K: Comparable<K>, V>: TreeMap<K, V, AVLNode<K, V>>() {
     }
     private fun balance(node: AVLNode<K, V>): AVLNode<K, V> {
         node.updateHeight()
-        val diff = node.diff
-        return when {
-            diff < -1 -> {
+        val diff : Int = node.diff
+        return when (diff) {
+            LEFT_HEAVY -> {
                 val rightNode = node.rightChild
-                if (rightNode!!.diff == 1) bigRotateLeft(node)
+                if (rightNode!!.diff == RIGHT_LEFT_HEAVY) bigRotateLeft(node)
                 else rotateLeft(node)
             }
-            diff > 1 -> {
+            RIGHT_HEAVY -> {
                 val leftNode = node.leftChild
-                if (leftNode!!.diff == -1) bigRotateRight(node)
+                if (leftNode!!.diff == LEFT_RIGHT_HEAVY) bigRotateRight(node)
                 else rotateRight(node)
             }
             else -> node
