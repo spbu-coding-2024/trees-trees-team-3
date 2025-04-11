@@ -1,23 +1,16 @@
-package BSTree
+package bsTree
 
-import TreeMap.*
-
+import treeMap.*
 
 /**
  * Node from a binary search tree
  */
 class BSTNode<K : Comparable<K>, V>(key: K, value: V, parent: BSTNode<K, V>?) : Node<K, V, BSTNode<K, V>>(key, value, parent)
 
-
 /**
  * Binary search tree
  */
 class BST<K : Comparable<K>, V> : TreeMap<K, V, BSTNode<K, V>>() {
-	/**
-	 * Elements count in BST
-	 */
-	override var size: Long = 0
-
 	/**
 	 * Contains root node
 	 */
@@ -44,9 +37,6 @@ class BST<K : Comparable<K>, V> : TreeMap<K, V, BSTNode<K, V>>() {
 		var current = this.root
 		while (current != null) {
 			require(key != current.key) { "Node with this key already exists" }
-
-class BST<K: Comparable<K>, V>: TreeMap<K, V, BSTNode<K, V>>(){
-    override protected var root: BSTNode<K, V>? = null
 			if (key < current.key) {
 				if (current.leftChild != null) {
 					current = current.leftChild
@@ -125,19 +115,13 @@ class BST<K: Comparable<K>, V>: TreeMap<K, V, BSTNode<K, V>>(){
 
 		//Removing node has one descendant
 		else if (node.leftChild == null || node.rightChild == null) {
+			val child = node.leftChild ?: node.rightChild
 			if (par != null) {
-				if (node.leftChild == null) {
-					if (par.leftChild == node) par.leftChild = node.rightChild
-					else par.rightChild = node.rightChild
-					node.rightChild?.parent = par
-				} else {
-					if (par.leftChild == node) par.leftChild = node.leftChild
-					else par.rightChild = node.leftChild
-					node.leftChild?.parent = par
-				}
+				if (par.leftChild == node) par.leftChild = child
+				else par.rightChild = child
+				child?.parent = par
 			}
 			else {
-				val child = node.rightChild ?: node.leftChild
 				child?.parent = null
 				this.root = child
 			}

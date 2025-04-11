@@ -1,4 +1,4 @@
-import main.kotlin.AVL
+import avlTree.AVL
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.assertj.core.api.Assertions.*

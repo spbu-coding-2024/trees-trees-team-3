@@ -1,5 +1,7 @@
-package main.kotlin
-import kotlin.math.*
+package avlTree
+import treeMap.TreeMap
+import treeMap.Node
+import kotlin.math.max
 
 class AVLNode<K: Comparable<K>, V>(key: K, value: V, parent: AVLNode<K, V>?):
     Node<K, V, AVLNode<K, V>>(key, value, parent){
@@ -13,8 +15,6 @@ class AVLNode<K: Comparable<K>, V>(key: K, value: V, parent: AVLNode<K, V>?):
 
 
 class AVL<K: Comparable<K>, V>: TreeMap<K, V, AVLNode<K, V>>() {
-    override protected var root: AVLNode<K, V>? = null
-    override var size: Long = 0
     override var root: AVLNode<K, V>? = null
     // нахождение преемника вершины
     private fun findMin(nod: AVLNode<K, V>): AVLNode<K, V> {
