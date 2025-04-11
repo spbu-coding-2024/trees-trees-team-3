@@ -1,7 +1,4 @@
-
-package test.kotlin
-
-import RBTree.*
+import rbTree.*
 import org.junit.jupiter.api.*
 import org.junit.jupiter.api.Assertions.*
 // Визуализатор: https://www.cs.usfca.edu/~galles/visualization/RedBlack.html

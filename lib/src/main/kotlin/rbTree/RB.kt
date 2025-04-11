@@ -1,6 +1,6 @@
-package RBTree
+package rbTree
 
-import TreeMap.*
+import treeMap.*
 
 enum class Color {
     RED, BLACK
@@ -108,27 +108,35 @@ class RBTree<K: Comparable<K>, V>: TreeMap<K, V, RBNode<K, V>>() {
             curNode = if (curNodeParent.key > key) curNodeParent.leftChild
                                         else curNodeParent.rightChild
         }
-        if (curNodeParent.key > key) {
-            curNodeParent.leftChild = RBNode(key, value, curNodeParent, Color.RED)
+        if (curNodeParent != null) {
+            if (curNodeParent.key > key) {
+                curNodeParent.leftChild = RBNode(key, value, curNodeParent, Color.RED)
+            }
+            else {
+                curNodeParent.rightChild = RBNode(key, value, curNodeParent, Color.RED)
+            }
         }
-        else {
-            curNodeParent.rightChild = RBNode(key, value, curNodeParent, Color.RED)
-        }
-        if (curNodeParent.color == Color.BLACK) {
-            return
+        if (curNodeParent != null) {
+            if (curNodeParent.color == Color.BLACK) {
+                return
+            }
         }
         // вставили к корню
-        if (curNodeParent.parent == null) {
-            return
+        if (curNodeParent != null) {
+            if (curNodeParent.parent == null) {
+                return
+            }
         }
         // проверяем, находятся ли дед и отец с одной стороны от вставленной вершины, и делаем поворот, если нужно
-        if (curNodeParent.key > key && curNodeParent == curNodeParent.parent!!.rightChild) {
-            rightRotation(curNodeParent.leftChild)
-            curNodeParent = curNodeParent.parent
-        }
-        else if (curNodeParent.key < key && curNodeParent == curNodeParent.parent!!.leftChild) {
-            leftRotation(curNodeParent.rightChild)
-            curNodeParent = curNodeParent.parent
+        if (curNodeParent != null) {
+            if (curNodeParent.key > key && curNodeParent == curNodeParent.parent!!.rightChild) {
+                rightRotation(curNodeParent.leftChild)
+                curNodeParent = curNodeParent.parent
+            }
+            else if (curNodeParent.key < key && curNodeParent == curNodeParent.parent!!.leftChild) {
+                leftRotation(curNodeParent.rightChild)
+                curNodeParent = curNodeParent.parent
+            }
         }
         fixInsertion(curNodeParent!!.parent, if (curNodeParent.parent!!.key > key) Side.left else Side.right)
     }
@@ -310,7 +318,8 @@ class RBTree<K: Comparable<K>, V>: TreeMap<K, V, RBNode<K, V>>() {
             // черный родитель, красный брат и у его правого потомка дети черные
             else if (A.color == Color.BLACK && A.leftChild?.color == Color.RED &&
                     ((A.leftChild?.rightChild?.leftChild?.color ?: Color.BLACK) == Color.BLACK) &&
-                     (A.leftChild?.rightChild?.rightChild?.color ?: Color.BLACK) == Color.BLACK) {
+                     (A.leftChild?.rightChild?.rightChild?.color ?: Color.BLACK) == Color.BLACK
+            ) {
                 var brother = A.leftChild
                 rightRotation(A.leftChild)
                 if (brother != null) {
@@ -385,7 +394,8 @@ class RBTree<K: Comparable<K>, V>: TreeMap<K, V, RBNode<K, V>>() {
             // красный родитель, черный брат с черными потомками
             else if (A.color == Color.RED && A.rightChild?.color == Color.BLACK &&
                     ((A.rightChild?.leftChild?.color ?: Color.BLACK) == Color.BLACK) &&
-                     (A.rightChild?.rightChild?.color ?: Color.BLACK) == Color.BLACK) {
+                     (A.rightChild?.rightChild?.color ?: Color.BLACK) == Color.BLACK
+            ) {
                 A.color = Color.BLACK
                 A.rightChild?.color = Color.RED
                 return
@@ -434,7 +444,8 @@ class RBTree<K: Comparable<K>, V>: TreeMap<K, V, RBNode<K, V>>() {
             // черный родитель, черный брат с черными потомками
             else if (A.color == Color.BLACK && A.rightChild?.color == Color.BLACK &&
                     (A.rightChild?.leftChild?.color ?: Color.BLACK) == Color.BLACK &&
-                    (A.rightChild?.rightChild?.color ?: Color.BLACK) == Color.BLACK) {
+                    (A.rightChild?.rightChild?.color ?: Color.BLACK) == Color.BLACK
+            ) {
                 A.rightChild?.color = Color.RED
                 if (A != this.root) {
                     fixDeletion(A.parent, if (A == A.parent?.leftChild) Side.left else Side.right)

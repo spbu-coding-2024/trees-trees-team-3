@@ -1,4 +1,3 @@
-package treeMapTest
 import avlTree.AVL
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test

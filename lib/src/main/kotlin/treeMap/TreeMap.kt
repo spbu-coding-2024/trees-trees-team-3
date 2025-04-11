@@ -1,4 +1,4 @@
-package TreeMap
+package treeMap
 
 abstract class Node<K: Comparable<K>, V, N>(key: K, value: V, parent: N?){
     internal var key: K = key
@@ -52,7 +52,6 @@ abstract class TreeMap<K: Comparable<K>, V, N: Node<K, V, N>>: Iterable<Pair<K, 
         return null
     }
 
-    internal fun getSize(): Long = size
     public abstract fun insert(key: K, value: V)
     public abstract fun remove(key: K)
 
